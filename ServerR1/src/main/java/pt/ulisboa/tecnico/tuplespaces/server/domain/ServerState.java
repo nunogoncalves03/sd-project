@@ -12,8 +12,32 @@ public class ServerState {
 
   }
 
-  public void put(String tuple) {
+  public synchronized void put(String tuple) {
     tuples.add(tuple);
+    notifyAll();
+  }
+
+  public synchronized String read(String pattern) throws InterruptedException {
+    String tuple = getMatchingTuple(pattern);
+    while (tuple == null){
+      this.wait();
+      tuple = getMatchingTuple(pattern);
+    }
+    return tuple;
+  }
+
+  public synchronized String take (String pattern) throws InterruptedException {
+    String toRemove = getMatchingTuple(pattern);
+    while (toRemove == null){
+      this.wait();
+      toRemove = getMatchingTuple(pattern);
+    }
+    this.tuples.remove(toRemove);
+    return toRemove;
+  }
+
+  public synchronized List<String> getTupleSpacesState() {
+    return tuples;
   }
 
   private String getMatchingTuple(String pattern) {
@@ -25,17 +49,4 @@ public class ServerState {
     return null;
   }
 
-  public String read(String pattern) {
-    return getMatchingTuple(pattern);
-  }
-
-  public String take(String pattern) {
-    // TODO
-    return null;
-  }
-
-  public List<String> getTupleSpacesState() {
-    // TODO
-    return null;
-  }
 }

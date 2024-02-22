@@ -2,32 +2,31 @@
 
 Distributed Systems Project 2024
 
-*(fill the line below with the group identifier, for example A25 or T25, and then delete this line)*  
-**Group GXX**
+_(fill the line below with the group identifier, for example A25 or T25, and then delete this line)_  
+**Group A09**
 
-*(choose one of the following levels and erase the other one)*  
+_(choose one of the following levels and erase the other one)_  
 **Difficulty level: I am Death incarnate! | Bring 'em on!**
-
 
 ### Code Identification
 
-In all source files (namely in the *groupId*s of the POMs), replace __GXX__ with your group identifier. The group
-identifier consists of either A or T followed by the group number - always two digits. This change is important for 
+In all source files (namely in the *groupId*s of the POMs), replace **A09** with your group identifier. The group
+identifier consists of either A or T followed by the group number - always two digits. This change is important for
 code dependency management, to ensure your code runs using the correct components and not someone else's.
 
 ### Team Members
 
-*(fill the table below with the team members, and then delete this line)*
+_(fill the table below with the team members, and then delete this line)_
 
-| Number | Name              | User                             | Email                               |
-|--------|-------------------|----------------------------------|-------------------------------------|
-| 11111  | Alice Distributed | <https://github.com/AliceUser>   | <mailto:alice@tecnico.ulisboa.pt>   |
-| 22222  | Bob Systems       | <https://github.com/BobUser>     | <mailto:bob@tecnico.ulisboa.pt>     |
-| 33333  | Charlie Rules     | <https://github.com/CharlieUser> | <mailto:charlie@tecnico.ulisboa.pt> |
+| Number | Name             | User                                 | Email                                        |
+| ------ | ---------------- | ------------------------------------ | -------------------------------------------- |
+| 102802 | Fábio Mata       | <https://github.com/fmata97>         | <mailto:fabio.mata@tecnico.ulisboa.pt>       |
+| 103392 | Nuno Gonçalves   | <https://github.com/nunogoncalves03> | <mailto:nunomrgoncalves@tecnico.ulisboa.pt>  |
+| 103363 | Alexandre Vudvud | <https://github.com/vudvud>          | <mailto:alexandre.vudvud@tecnico.ulisboa.pt> |
 
 ## Getting Started
 
-The overall system is made up of several modules. The different types of servers are located in _ServerX_ (where X denotes stage 1, 2 or 3). 
+The overall system is made up of several modules. The different types of servers are located in _ServerX_ (where X denotes stage 1, 2 or 3).
 The clients is in _Client_.
 The definition of messages and services is in _Contract_. The future naming server
 is in _NamingServer_.
@@ -56,5 +55,5 @@ mvn clean install
 
 ## Built With
 
-* [Maven](https://maven.apache.org/) - Build and dependency management tool;
-* [gRPC](https://grpc.io/) - RPC framework.
+-   [Maven](https://maven.apache.org/) - Build and dependency management tool;
+-   [gRPC](https://grpc.io/) - RPC framework.
