@@ -13,7 +13,12 @@ public class ClientServiceException extends Exception {
 
   public ClientServiceException(StatusRuntimeException e) {
     super();
-    setDescription(e.getStatus().getDescription());
+
+    if (e.getStatus().getDescription() == null) {
+      setDescription("Unknown error");
+    } else {
+      setDescription(e.getStatus().getDescription());
+    }
   }
 
   public String getDescription() {
