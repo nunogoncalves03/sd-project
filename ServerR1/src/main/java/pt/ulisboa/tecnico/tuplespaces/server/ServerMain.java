@@ -3,25 +3,37 @@ package pt.ulisboa.tecnico.tuplespaces.server;
 import io.grpc.BindableService;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
+import java.io.IOException;
 import pt.ulisboa.tecnico.tuplespaces.server.grpc.TupleSpacesServiceImpl;
 
-import java.io.IOException;
-
 public class ServerMain {
+
+  public static boolean debugMode = false;
+
+  public static void debug(String format, Object... args) {
+    if (debugMode) {
+      System.err.printf("[DEBUG tid=%s] ", Thread.currentThread().getId());
+      System.err.printf(format, args);
+    }
+  }
 
   public static void main(String[] args) throws IOException, InterruptedException {
     System.out.println(ServerMain.class.getSimpleName());
 
+    if (args.length == 2) {
+      debugMode = args[1].equals("-debug");
+    }
+
     // receive and print arguments
-    System.out.printf("Received %d arguments%n", args.length);
+    debug("Received %d arguments\n", args.length);
     for (int i = 0; i < args.length; i++) {
-      System.out.printf("arg[%d] = %s%n", i, args[i]);
+      debug("arg[%d] = %s\n", i, args[i]);
     }
 
     // check arguments
-    if (args.length < 1) {
-      System.err.println("Argument(s) missing!");
-      System.err.printf("Usage: java %s port%n", ServerMain.class.getName());
+    if (args.length < 1 || args.length > 2) {
+      System.err.println("Invalid argument(s)!");
+      System.err.println("Usage: mvn exec:java -Dexec.args=<port> -debug");
       return;
     }
 
@@ -35,9 +47,10 @@ public class ServerMain {
     server.start();
 
     // Server threads are running in the background.
-    System.out.println("Server started");
+    debug("Server running on port %s\n", port);
 
     // Do not exit the main thread. Wait until server is terminated.
     server.awaitTermination();
+    debug("Server was shutdown\n");
   }
 }
