@@ -29,16 +29,18 @@ public class ClientMain {
     // check arguments
     if (args.length < 3 || args.length > 4) {
       System.err.println("Invalid argument(s)!");
-      System.err.println("Usage: mvn exec:java -Dexec.args=<host> <port> <server> -debug");
+      System.err.println("Usage: mvn exec:java -Dexec.args=<host> <port> <service> [-debug]");
       return;
     }
 
     final String host = args[0];
     final int port = Integer.parseInt(args[1]);
+    final String service = args[2];
     final String target = host + ":" + port;
-    debug("Target: %s\n", target);
+    debug("DNS target: %s\n", target);
+    debug("Service: %s\n", service);
 
-    CommandProcessor parser = new CommandProcessor(new ClientService(target));
+    CommandProcessor parser = new CommandProcessor(new ClientService(target, service));
     parser.parseInput();
   }
 }

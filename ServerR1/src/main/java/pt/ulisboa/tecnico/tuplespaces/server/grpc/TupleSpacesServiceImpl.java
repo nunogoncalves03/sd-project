@@ -31,7 +31,7 @@ public class TupleSpacesServiceImpl extends TupleSpacesImplBase {
       responseObserver.onCompleted();
     } catch (IllegalArgumentException e) {
       StatusRuntimeException responseException =
-              INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException();
+          INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException();
       ServerMain.debug("response @put: %s\n", responseException);
       responseObserver.onError(responseException);
     } catch (Exception e) {
@@ -59,7 +59,7 @@ public class TupleSpacesServiceImpl extends TupleSpacesImplBase {
       responseObserver.onCompleted();
     } catch (IllegalArgumentException e) {
       StatusRuntimeException responseException =
-              INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException();
+          INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException();
       ServerMain.debug("response @read: %s\n", responseException);
       responseObserver.onError(responseException);
     } catch (Exception e) {
@@ -87,7 +87,7 @@ public class TupleSpacesServiceImpl extends TupleSpacesImplBase {
       responseObserver.onCompleted();
     } catch (IllegalArgumentException e) {
       StatusRuntimeException responseException =
-              INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException();
+          INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException();
       ServerMain.debug("response @take: %s\n", responseException);
       responseObserver.onError(responseException);
     } catch (Exception e) {
