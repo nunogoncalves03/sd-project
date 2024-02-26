@@ -6,17 +6,12 @@ import static io.grpc.Status.INVALID_ARGUMENT;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import java.util.List;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 import pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesCentralized.*;
 import pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesGrpc.TupleSpacesImplBase;
 import pt.ulisboa.tecnico.tuplespaces.server.ServerMain;
 import pt.ulisboa.tecnico.tuplespaces.server.domain.ServerState;
 
 public class TupleSpacesServiceImpl extends TupleSpacesImplBase {
-
-  private static final String BGN_TUPLE = "<";
-  private static final String END_TUPLE = ">";
 
   private final ServerState state = new ServerState();
 
@@ -26,13 +21,6 @@ public class TupleSpacesServiceImpl extends TupleSpacesImplBase {
       ServerMain.debug("request @put: %s", request);
 
       final String tuple = request.getNewTuple();
-      if (!isTupleValid(tuple)) {
-        StatusRuntimeException responseException =
-            INVALID_ARGUMENT.withDescription("Invalid tuple").asRuntimeException();
-        ServerMain.debug("response @put: %s\n", responseException);
-        responseObserver.onError(responseException);
-        return;
-      }
 
       state.put(tuple);
 
@@ -41,6 +29,11 @@ public class TupleSpacesServiceImpl extends TupleSpacesImplBase {
 
       responseObserver.onNext(response);
       responseObserver.onCompleted();
+    } catch (IllegalArgumentException e) {
+      StatusRuntimeException responseException =
+              INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException();
+      ServerMain.debug("response @put: %s\n", responseException);
+      responseObserver.onError(responseException);
     } catch (Exception e) {
       ServerMain.debug("Error @put: %s\n", e);
       StatusRuntimeException responseException =
@@ -56,22 +49,19 @@ public class TupleSpacesServiceImpl extends TupleSpacesImplBase {
       ServerMain.debug("request @read: %s", request);
 
       final String searchPattern = request.getSearchPattern();
-      if (!isPatternValidRegex(searchPattern)) {
-        StatusRuntimeException responseException =
-            INVALID_ARGUMENT.withDescription("Invalid search pattern").asRuntimeException();
-        ServerMain.debug("response @read: %s\n", responseException);
-        responseObserver.onError(responseException);
-        return;
-      }
 
-      String result;
-      result = state.read(searchPattern);
+      String result = state.read(searchPattern);
 
       ReadResponse response = ReadResponse.newBuilder().setResult(result).build();
       ServerMain.debug("response @read: %s", response);
 
       responseObserver.onNext(response);
       responseObserver.onCompleted();
+    } catch (IllegalArgumentException e) {
+      StatusRuntimeException responseException =
+              INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException();
+      ServerMain.debug("response @read: %s\n", responseException);
+      responseObserver.onError(responseException);
     } catch (Exception e) {
       ServerMain.debug("Error @read: %s\n", e);
       StatusRuntimeException responseException =
@@ -87,22 +77,19 @@ public class TupleSpacesServiceImpl extends TupleSpacesImplBase {
       ServerMain.debug("request @take: %s", request);
 
       final String searchPattern = request.getSearchPattern();
-      if (!isPatternValidRegex(searchPattern)) {
-        StatusRuntimeException responseException =
-            INVALID_ARGUMENT.withDescription("Invalid search pattern").asRuntimeException();
-        ServerMain.debug("response @take: %s\n", responseException);
-        responseObserver.onError(responseException);
-        return;
-      }
 
-      String result;
-      result = state.take(searchPattern);
+      String result = state.take(searchPattern);
 
       TakeResponse response = TakeResponse.newBuilder().setResult(result).build();
       ServerMain.debug("response @take: %s", response);
 
       responseObserver.onNext(response);
       responseObserver.onCompleted();
+    } catch (IllegalArgumentException e) {
+      StatusRuntimeException responseException =
+              INVALID_ARGUMENT.withDescription(e.getMessage()).asRuntimeException();
+      ServerMain.debug("response @take: %s\n", responseException);
+      responseObserver.onError(responseException);
     } catch (Exception e) {
       ServerMain.debug("Error @take: %s\n", e);
       StatusRuntimeException responseException =
@@ -133,19 +120,6 @@ public class TupleSpacesServiceImpl extends TupleSpacesImplBase {
           INTERNAL.withDescription("Internal server error").asRuntimeException();
       ServerMain.debug("response @getTupleSpacesState: %s\n", responseException);
       responseObserver.onError(responseException);
-    }
-  }
-
-  private boolean isTupleValid(String tuple) {
-    return tuple.startsWith(BGN_TUPLE) && tuple.endsWith(END_TUPLE);
-  }
-
-  private boolean isPatternValidRegex(String pattern) {
-    try {
-      Pattern.compile(pattern);
-      return true;
-    } catch (PatternSyntaxException e) {
-      return false;
     }
   }
 }
