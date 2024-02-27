@@ -14,7 +14,9 @@ public class DnsService {
 
   public DnsService(String dnsTarget) {
     this.channel = ManagedChannelBuilder.forTarget(dnsTarget).usePlaintext().build();
+    ServerMain.debug("DNS channel was created successfully\n");
     this.stub = NameServerGrpc.newBlockingStub(channel);
+    ServerMain.debug("DNS stub was created successfully\n");
   }
 
   public void register(String target, String qualifier, String service) throws DnsServiceException {
@@ -38,7 +40,9 @@ public class DnsService {
       ServerMain.debug("RPC failed: %s\n", e.getStatus());
       throw new DnsServiceException(e);
     }
+  }
 
+  public void shutdown() {
     channel.shutdownNow();
     ServerMain.debug("DNS channel successfully shutdown\n");
   }

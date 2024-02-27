@@ -36,7 +36,8 @@ public class ServerMain {
     // check arguments
     if (args.length < 5 || args.length > 6) {
       System.err.println("Invalid argument(s)!");
-      System.err.println("Usage: mvn exec:java -Dexec.args=<dns_host> <dns_port> <server_port> <qualifier> <service> [-debug]");
+      System.err.println(
+          "Usage: mvn exec:java -Dexec.args=<dns_host> <dns_port> <server_port> <qualifier> <service> [-debug]");
       return;
     }
 
@@ -76,10 +77,13 @@ public class ServerMain {
     try {
       dns.unregister(target, service);
       debug("Server unregistered from DNS service\n");
+
+      dns.shutdown();
     } catch (DnsServiceException e) {
       System.err.println("DNS unregister failed: " + e.getDescription());
       System.exit(1);
     }
+
     debug("Server was shutdown\n");
   }
 }

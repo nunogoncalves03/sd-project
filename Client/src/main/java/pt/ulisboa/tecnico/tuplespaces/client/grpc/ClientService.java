@@ -4,30 +4,30 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.StatusRuntimeException;
 import java.util.List;
-import pt.ulisboa.tecnico.nameserver.contract.NameServerGrpc;
 import pt.ulisboa.tecnico.nameserver.contract.NameServerOuterClass.*;
 import pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesCentralized.*;
 import pt.ulisboa.tecnico.tuplespaces.centralized.contract.TupleSpacesGrpc;
 import pt.ulisboa.tecnico.tuplespaces.client.ClientMain;
 import pt.ulisboa.tecnico.tuplespaces.client.exceptions.ClientServiceException;
+import pt.ulisboa.tecnico.tuplespaces.client.exceptions.DnsServiceException;
 
 public class ClientService {
 
-  private final ManagedChannel dnsChannel;
-  private final NameServerGrpc.NameServerBlockingStub dnsStub;
-
   private final ManagedChannel channel;
   private final TupleSpacesGrpc.TupleSpacesBlockingStub stub;
+  private final DnsService dns;
 
   public ClientService(String target, String service) {
-    dnsChannel = ManagedChannelBuilder.forTarget(target).usePlaintext().build();
-    ClientMain.debug("DNS channel was created successfully\n");
-    dnsStub = NameServerGrpc.newBlockingStub(dnsChannel);
-    ClientMain.debug("DNS stub was created successfully\n");
+    dns = new DnsService(target);
+    List<String> addresses = null;
 
-    List<String> addresses = dnsStub.lookup(LookupRequest.newBuilder().setService(service).build()).getAddressList();
-
-    dnsChannel.shutdownNow();
+    try {
+      addresses = dns.lookup(service, null);
+      ClientMain.debug("DNS lookup successful: %s\n", addresses);
+    } catch (DnsServiceException e) {
+      System.err.println("DNS lookup failed: " + e.getDescription());
+      System.exit(1);
+    }
 
     if (addresses.isEmpty()) {
       System.err.println("No available servers");
@@ -96,5 +96,7 @@ public class ClientService {
   public void shutdownChannel() {
     channel.shutdownNow();
     ClientMain.debug("channel successfully shutdown\n");
+
+    dns.shutdown();
   }
 }
