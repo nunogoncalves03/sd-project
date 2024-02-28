@@ -85,7 +85,7 @@ public class CommandProcessor {
     // put the tuple
     try {
       this.clientService.put(tuple);
-      System.out.println("OK");
+      System.out.println("OK\n");
     } catch (ClientServiceException e) {
       System.out.println(e);
     }
@@ -105,7 +105,7 @@ public class CommandProcessor {
     // read the tuple
     try {
       String result = this.clientService.read(tuple);
-      System.out.println("OK\n" + result);
+      System.out.println("OK\n" + result + "\n");
     } catch (ClientServiceException e) {
       System.out.println(e);
     }
@@ -125,7 +125,7 @@ public class CommandProcessor {
     // take the tuple
     try {
       String result = this.clientService.take(tuple);
-      System.out.println("OK\n" + result);
+      System.out.println("OK\n" + result + "\n");
     } catch (ClientServiceException e) {
       System.out.println(e);
     }
@@ -142,7 +142,7 @@ public class CommandProcessor {
     // get the tuple spaces state
     try {
       List<String> result = this.clientService.getTupleSpacesState();
-      System.out.println("OK\n" + result);
+      System.out.println("OK\n" + result + "\n");
     } catch (ClientServiceException e) {
       System.out.println(e);
     }

@@ -21,8 +21,6 @@ public class ServerMain {
   }
 
   public static void main(String[] args) throws IOException, InterruptedException {
-    System.out.println(ServerMain.class.getSimpleName());
-
     if (args.length == 6) {
       debugMode = args[5].equals("-debug");
     }

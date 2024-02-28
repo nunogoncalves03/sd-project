@@ -14,8 +14,6 @@ public class ClientMain {
   }
 
   public static void main(String[] args) {
-    System.out.println(ClientMain.class.getSimpleName());
-
     if (args.length == 4) {
       debugMode = args[3].equals("-debug");
     }

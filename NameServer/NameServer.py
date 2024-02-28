@@ -16,9 +16,12 @@ class ServiceEntry:
         self.servers: list[ServerEntry] = servers
 
     def add_server(self, server: ServerEntry) -> None:
-        # check for duplicate address
-        if any(map(lambda x: x.address == server.address, self.servers)):
-            raise ValueError("Duplicate address")
+        # check for duplicate address/qualifier
+        for sv_entry in self.servers:
+            if sv_entry.address == server.address:
+                raise ValueError("Duplicate address")
+            elif sv_entry.qualifier == server.qualifier:
+                raise ValueError("Duplicate qualifier")
 
         old_addresses = self.servers_to_str()
         self.servers.append(server)
