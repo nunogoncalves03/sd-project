@@ -6,6 +6,7 @@ import NameServer_pb2 as pb2
 import NameServer_pb2_grpc as pb2_grpc
 from concurrent import futures
 from NameServerServiceImpl import NameServerServiceImpl
+from Debug import Debug
 
 
 # define the port
@@ -17,6 +18,8 @@ if __name__ == "__main__":
         print("Received arguments:")
         for i in range(1, len(sys.argv)):
             print("  " + sys.argv[i])
+            if sys.argv[i] == "-debug":
+                Debug.debug = True
 
         # create server
         server = grpc.server(futures.ThreadPoolExecutor(max_workers=1))
@@ -27,11 +30,11 @@ if __name__ == "__main__":
         # start server
         server.start()
         # print message
-        print("Server listening on port " + str(PORT))
+        Debug.log("Server listening on port " + str(PORT) + "\n")
         # print termination message
-        print("Press CTRL+C to terminate")
+        Debug.log("Press CTRL+C to terminate\n")
         # wait for server to finish
         server.wait_for_termination()
     except KeyboardInterrupt:
-        print("NameServer stopped")
+        Debug.log("NameServer stopped\n")
         exit(0)

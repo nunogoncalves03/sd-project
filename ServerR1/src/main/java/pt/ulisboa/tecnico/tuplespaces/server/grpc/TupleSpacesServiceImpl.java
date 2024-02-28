@@ -25,7 +25,7 @@ public class TupleSpacesServiceImpl extends TupleSpacesImplBase {
       state.put(tuple);
 
       PutResponse response = PutResponse.getDefaultInstance();
-      ServerMain.debug("response @put: %s\n", response);
+      ServerMain.debug("response @put: empty\n");
 
       responseObserver.onNext(response);
       responseObserver.onCompleted();
@@ -104,13 +104,13 @@ public class TupleSpacesServiceImpl extends TupleSpacesImplBase {
       getTupleSpacesStateRequest request,
       StreamObserver<getTupleSpacesStateResponse> responseObserver) {
     try {
-      ServerMain.debug("request @getTupleSpacesState: %s\n", request);
+      ServerMain.debug("request @getTupleSpacesState: empty\n");
 
       List<String> result = state.getTupleSpacesState();
 
       getTupleSpacesStateResponse response =
           getTupleSpacesStateResponse.newBuilder().addAllTuple(result).build();
-      ServerMain.debug("response @getTupleSpacesState: %s", result.isEmpty() ? "\n" : response);
+      ServerMain.debug("response @getTupleSpacesState: %s", result.isEmpty() ? "empty\n" : response);
 
       responseObserver.onNext(response);
       responseObserver.onCompleted();
