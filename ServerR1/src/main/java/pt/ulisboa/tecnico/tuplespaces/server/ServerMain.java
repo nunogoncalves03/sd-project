@@ -13,7 +13,7 @@ public class ServerMain {
 
   public static boolean debugMode = false;
 
-  public static void debug(String format, Object... args) {
+  public static synchronized void debug(String format, Object... args) {
     if (debugMode) {
       System.err.printf("[DEBUG tid=%s] ", Thread.currentThread().getId());
       System.err.printf(format, args);
@@ -71,19 +71,25 @@ public class ServerMain {
     // Server threads are running in the background.
     debug("Server running on port %s\n", serverPort);
 
+    Thread shutdownHook =
+        new Thread(
+            () -> {
+              server.shutdown();
+
+              try {
+                dns.unregister(target, service);
+                debug("Server unregistered from DNS service\n");
+
+                dns.shutdown();
+              } catch (DnsServiceException e) {
+                System.err.println("DNS unregister failed: " + e.getDescription());
+                System.exit(1);
+              }
+            });
+    Runtime.getRuntime().addShutdownHook(shutdownHook);
+
     // Do not exit the main thread. Wait until server is terminated.
     server.awaitTermination();
-
-    try {
-      dns.unregister(target, service);
-      debug("Server unregistered from DNS service\n");
-
-      dns.shutdown();
-    } catch (DnsServiceException e) {
-      System.err.println("DNS unregister failed: " + e.getDescription());
-      System.exit(1);
-    }
-
     debug("Server was shutdown\n");
   }
 }
