@@ -2,21 +2,17 @@
 
 Distributed Systems Project 2024
 
-_(fill the line below with the group identifier, for example A25 or T25, and then delete this line)_  
 **Group A09**
 
-_(choose one of the following levels and erase the other one)_  
-**Difficulty level: I am Death incarnate! | Bring 'em on!**
+**Difficulty level**: I am Death incarnate!
 
 ### Code Identification
 
-In all source files (namely in the *groupId*s of the POMs), replace **A09** with your group identifier. The group
+In all source files (namely in the *groupId*s of the POMs), replace **GXX** with your group identifier. The group
 identifier consists of either A or T followed by the group number - always two digits. This change is important for
 code dependency management, to ensure your code runs using the correct components and not someone else's.
 
 ### Team Members
-
-_(fill the table below with the team members, and then delete this line)_
 
 | Number | Name             | User                                 | Email                                        |
 | ------ | ---------------- | ------------------------------------ | -------------------------------------------- |
@@ -45,13 +41,88 @@ javac -version
 mvn -version
 ```
 
-### Installation
+### Installation and configuration
 
 To compile and install all modules:
 
-```s
+```
 mvn clean install
 ```
+
+#### NameServer
+
+To setup the python virtual environment:
+
+```
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install grpcio
+python -m pip install grpcio-tools
+```
+
+To create NameServer gRPC related classes:
+```
+cd Contract/
+mvn install
+mvn exec:exec
+```
+
+To run the NameServer:
+```
+python server.py [-debug]
+```
+
+#### Server
+
+**NOTE**: the default arguments provided to the program are defined in `pom.xml` as follows:
+
+```
+<dns_host>: localhost
+<dns_port>: 5001
+<sv_port>: 2001
+<qualifier>: A
+<service>: TupleSpaces
+```
+
+To run the Server without debugging:
+
+```
+mvn compile exec:java
+```
+or
+```
+mvn compile exec:java -Dexec.args="<dns_host> <dns_port> <sv_port> <qualifier> <service>"
+```
+To run with debugging:
+```
+mvn compile exec:java -Dexec.args="<dns_host> <dns_port> <sv_port> <qualifier> <service> -debug"
+```
+
+#### Client
+
+**NOTE**: the default arguments provided to the program are defined in `pom.xml` as follows:
+
+```
+<dns_host>: localhost
+<dns_port>: 5001
+<service>: TupleSpaces
+```
+
+To run the client without debugging:
+
+```
+mvn compile exec:java
+```
+or
+```
+mvn compile exec:java -Dexec.args="<dns_host> <dns_port> <service>"
+```
+
+To run the client with debugging:
+```
+mvn compile exec:java -Dexec.args="<dns_host> <dns_port> <service> -debug"
+```
+
 
 ## Built With
 

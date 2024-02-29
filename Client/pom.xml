@@ -21,9 +21,9 @@
 		<version.exec-maven-plugin>3.0.0</version.exec-maven-plugin>
 
 		<mainclass>pt.ulisboa.tecnico.tuplespaces.client.ClientMain</mainclass>
-		<server.host>localhost</server.host>
-		<server.port>5001</server.port>
-		<server.service>TupleSpaces</server.service>
+		<client.dns_host>localhost</client.dns_host>
+		<client.dns_port>5001</client.dns_port>
+		<client.service>TupleSpaces</client.service>
 
 	</properties>
 
@@ -70,9 +70,9 @@
 				<configuration>
 					<mainClass>${mainclass}</mainClass>
 					<arguments>
-						<argument>${server.host}</argument>
-						<argument>${server.port}</argument>
-						<argument>${server.service}</argument>
+						<argument>${client.dns_host}</argument>
+						<argument>${client.dns_port}</argument>
+						<argument>${client.service}</argument>
 					</arguments>
 				</configuration>
 			</plugin>
