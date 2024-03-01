@@ -21,8 +21,8 @@ public class ServerMain {
   }
 
   public static void main(String[] args) throws IOException, InterruptedException {
-    if (args.length == 6) {
-      debugMode = args[5].equals("-debug");
+    if (args.length == 7) {
+      debugMode = args[6].equals("-debug");
     }
 
     // receive and print arguments
@@ -32,21 +32,22 @@ public class ServerMain {
     }
 
     // check arguments
-    if (args.length < 5 || args.length > 6) {
+    if (args.length < 6 || args.length > 7) {
       System.err.println("Invalid argument(s)!");
       System.err.println(
-          "Usage: mvn exec:java -Dexec.args=<dns_host> <dns_port> <server_port> <qualifier> <service> [-debug]");
+          "Usage: mvn exec:java -Dexec.args=<dns_host> <dns_port> <server_host> <server_port> <qualifier> <service> [-debug]");
       return;
     }
 
     final String dnsHost = args[0];
     final int dnsPort = Integer.parseInt(args[1]);
-    final int serverPort = Integer.parseInt(args[2]);
-    final String qualifier = args[3];
-    final String service = args[4];
+    final String serverHost = args[2];
+    final int serverPort = Integer.parseInt(args[3]);
+    final String qualifier = args[4];
+    final String service = args[5];
 
     final String dnsTarget = dnsHost + ":" + dnsPort;
-    final String target = "localhost:" + serverPort;
+    final String target = serverHost + ":" + serverPort;
 
     DnsService dns = new DnsService(dnsTarget);
 
@@ -67,7 +68,8 @@ public class ServerMain {
     server.start();
 
     // Server threads are running in the background.
-    debug("Server running on port %s\n", serverPort);
+    System.out.printf("Server running on port %s\n", serverPort);
+    System.out.println("Press CTRL+C to terminate");
 
     Thread shutdownHook =
         new Thread(
@@ -81,13 +83,13 @@ public class ServerMain {
                 dns.shutdown();
               } catch (DnsServiceException e) {
                 System.err.println("DNS unregister failed: " + e.getDescription());
-                System.exit(1);
+                dns.shutdown();
               }
             });
     Runtime.getRuntime().addShutdownHook(shutdownHook);
 
     // Do not exit the main thread. Wait until server is terminated.
     server.awaitTermination();
-    debug("Server was shutdown\n");
+    System.out.println("Server was shutdown");
   }
 }

@@ -27,11 +27,11 @@ if __name__ == "__main__":
         # start server
         server.start()
         # print message
-        Debug.log("Server listening on port " + str(PORT) + "\n")
+        print("Server listening on port " + str(PORT))
         # print termination message
-        Debug.log("Press CTRL+C to terminate\n")
+        print("Press CTRL+C to terminate")
         # wait for server to finish
         server.wait_for_termination()
     except KeyboardInterrupt:
-        Debug.log("NameServer stopped\n")
+        print("NameServer stopped")
         exit(0)

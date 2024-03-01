@@ -79,6 +79,7 @@ python server.py [-debug]
 ```
 <dns_host>: localhost
 <dns_port>: 5001
+<sv_host>: localhost
 <sv_port>: 2001
 <qualifier>: A
 <service>: TupleSpaces
@@ -91,11 +92,11 @@ mvn compile exec:java
 ```
 or
 ```
-mvn compile exec:java -Dexec.args="<dns_host> <dns_port> <sv_port> <qualifier> <service>"
+mvn compile exec:java -Dexec.args="<dns_host> <dns_port> <sv_host> <sv_port> <qualifier> <service>"
 ```
 To run with debugging:
 ```
-mvn compile exec:java -Dexec.args="<dns_host> <dns_port> <sv_port> <qualifier> <service> -debug"
+mvn compile exec:java -Dexec.args="<dns_host> <dns_port> <sv_host> <sv_port> <qualifier> <service> -debug"
 ```
 
 #### Client

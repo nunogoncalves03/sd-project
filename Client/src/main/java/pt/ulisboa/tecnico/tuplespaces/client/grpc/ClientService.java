@@ -47,7 +47,7 @@ public class ClientService {
     try {
       ClientMain.debug("calling procedure put('%s')\n", newTuple);
       PutResponse response = this.stub.put(PutRequest.newBuilder().setNewTuple(newTuple).build());
-      ClientMain.debug("response: %s\n", response);
+      ClientMain.debug("response: empty\n");
     } catch (StatusRuntimeException e) {
       ClientMain.debug("RPC failed: %s\n", e.getStatus());
       throw new ClientServiceException(e);

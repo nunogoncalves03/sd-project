@@ -23,6 +23,7 @@
 		<mainclass>pt.ulisboa.tecnico.tuplespaces.server.ServerMain</mainclass>
 		<server.dns_host>localhost</server.dns_host>
 		<server.dns_port>5001</server.dns_port>
+		<server.host>localhost</server.host>
 		<server.port>2001</server.port>
 		<server.qualifier>A</server.qualifier>
 		<server.service>TupleSpaces</server.service>
@@ -68,6 +69,7 @@
 					<arguments>
 						<argument>${server.dns_host}</argument>
 						<argument>${server.dns_port}</argument>
+						<argument>${server.host}</argument>
 						<argument>${server.port}</argument>
 						<argument>${server.qualifier}</argument>
 						<argument>${server.service}</argument>
