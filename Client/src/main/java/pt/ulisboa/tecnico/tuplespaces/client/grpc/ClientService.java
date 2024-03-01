@@ -85,7 +85,7 @@ public class ClientService {
       ClientMain.debug("calling procedure getTupleSpacesState()\n");
       getTupleSpacesStateResponse response =
           this.stub.getTupleSpacesState(getTupleSpacesStateRequest.getDefaultInstance());
-      ClientMain.debug("response: %s", response.getTupleCount() == 0 ? "\n" : response);
+      ClientMain.debug("response: %s", response.getTupleCount() == 0 ? "empty\n" : response);
       return response.getTupleList();
     } catch (StatusRuntimeException e) {
       ClientMain.debug("RPC failed: %s\n", e.getStatus());

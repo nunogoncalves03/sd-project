@@ -30,7 +30,7 @@ public class DnsService {
                 response = this.stub.lookup(LookupRequest.newBuilder().setService(service).build());
             }
 
-            ClientMain.debug("response: %s", response.getAddressCount() == 0 ? "\n" : response);
+            ClientMain.debug("response: %s", response.getAddressCount() == 0 ? "empty\n" : response);
             return response.getAddressList();
         } catch (StatusRuntimeException e) {
             ClientMain.debug("RPC failed: %s\n", e.getStatus());
