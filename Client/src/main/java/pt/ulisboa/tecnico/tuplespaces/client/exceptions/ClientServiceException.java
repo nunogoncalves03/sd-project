@@ -11,6 +11,12 @@ public class ClientServiceException extends Exception {
     setDescription("Unknown error");
   }
 
+  public ClientServiceException(String description) {
+    super();
+
+    setDescription(description);
+  }
+
   public ClientServiceException(StatusRuntimeException e) {
     super();
 
@@ -19,6 +25,12 @@ public class ClientServiceException extends Exception {
     } else {
       setDescription(e.getStatus().getDescription());
     }
+  }
+
+  public ClientServiceException(InterruptedException e) {
+    super();
+
+    setDescription(e.getMessage());
   }
 
   public String getDescription() {
