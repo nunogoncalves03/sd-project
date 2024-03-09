@@ -189,7 +189,12 @@ public class CommandProcessor {
     }
 
     // register delay <time> for when calling server <qualifier>
-    System.out.println("TODO: implement setdelay command (only needed in phases 2+3)");
+    try{
+      this.clientService.setDelay(qualifier, time);
+    }
+    catch(ClientServiceException e){
+      System.out.println(e + "\n");
+    }
   }
 
   private void printUsage() {
