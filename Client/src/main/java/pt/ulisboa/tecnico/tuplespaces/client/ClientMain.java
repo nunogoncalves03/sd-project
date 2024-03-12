@@ -1,10 +1,13 @@
 package pt.ulisboa.tecnico.tuplespaces.client;
 
+import java.util.Random;
 import pt.ulisboa.tecnico.tuplespaces.client.grpc.ClientService;
 
 public class ClientMain {
 
   public static boolean debugMode = false;
+
+  public static int id = (new Random()).nextInt();
 
   public static void debug(String format, Object... args) {
     if (debugMode) {
@@ -37,6 +40,7 @@ public class ClientMain {
     final String target = host + ":" + port;
     debug("DNS target: %s\n", target);
     debug("Service: %s\n", service);
+    debug("Client ID: %s\n", ClientMain.id);
 
     CommandProcessor parser = new CommandProcessor(new ClientService(target, service));
     parser.parseInput();

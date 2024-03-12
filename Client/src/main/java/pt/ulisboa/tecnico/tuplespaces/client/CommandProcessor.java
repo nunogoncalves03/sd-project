@@ -189,12 +189,12 @@ public class CommandProcessor {
     }
 
     // register delay <time> for when calling server <qualifier>
-    try{
+    try {
       this.clientService.setDelay(qualifier, time);
-    }
-    catch(ClientServiceException e){
+    } catch (ClientServiceException e) {
       System.out.println(e + "\n");
     }
+    System.out.println("OK\n");
   }
 
   private void printUsage() {

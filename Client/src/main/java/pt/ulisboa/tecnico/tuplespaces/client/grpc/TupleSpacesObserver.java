@@ -1,6 +1,7 @@
 package pt.ulisboa.tecnico.tuplespaces.client.grpc;
 
 import io.grpc.Status;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 import pt.ulisboa.tecnico.tuplespaces.client.util.ResponseCollector;
 
@@ -20,7 +21,16 @@ public class TupleSpacesObserver<R> implements StreamObserver<R> {
 
   @Override
   public void onError(Throwable throwable) {
-    this.collector.abort(Status.fromThrowable(throwable).asRuntimeException());
+    StatusRuntimeException e = Status.fromThrowable(throwable).asRuntimeException();
+
+    if (e.getStatus().getCode().equals(Status.ABORTED.getCode())
+        && e.getStatus().getDescription() != null
+        && e.getStatus().getDescription().contains("LOCK_FAILED")) {
+      this.collector.addRejection();
+      return;
+    }
+
+    this.collector.abort(e);
   }
 
   @Override
