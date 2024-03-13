@@ -107,6 +107,7 @@ mvn compile exec:java -Dexec.args="<dns_host> <dns_port> <sv_host> <sv_port> <qu
 <dns_host>: localhost
 <dns_port>: 5001
 <service>: TupleSpaces
+<client_id>: 1
 ```
 
 To run the client without debugging:
@@ -116,12 +117,12 @@ mvn compile exec:java
 ```
 or
 ```
-mvn compile exec:java -Dexec.args="<dns_host> <dns_port> <service>"
+mvn compile exec:java -Dexec.args="<dns_host> <dns_port> <service> <client_id>"
 ```
 
 To run the client with debugging:
 ```
-mvn compile exec:java -Dexec.args="<dns_host> <dns_port> <service> -debug"
+mvn compile exec:java -Dexec.args="<dns_host> <dns_port> <service> <client_id> -debug"
 ```
 
 

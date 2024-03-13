@@ -24,7 +24,7 @@
 		<client.dns_host>localhost</client.dns_host>
 		<client.dns_port>5001</client.dns_port>
 		<client.service>TupleSpaces</client.service>
-
+		<client.client_id>1</client.client_id>
 	</properties>
 
 	<!-- Dependencies are code archives - JARs - 
@@ -73,6 +73,7 @@
 						<argument>${client.dns_host}</argument>
 						<argument>${client.dns_port}</argument>
 						<argument>${client.service}</argument>
+						<argument>${client.client_id}</argument>
 					</arguments>
 				</configuration>
 			</plugin>
