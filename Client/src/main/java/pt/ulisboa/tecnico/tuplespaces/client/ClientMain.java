@@ -1,6 +1,5 @@
 package pt.ulisboa.tecnico.tuplespaces.client;
 
-import java.util.Random;
 import pt.ulisboa.tecnico.tuplespaces.client.grpc.ClientService;
 
 public class ClientMain {
@@ -30,7 +29,8 @@ public class ClientMain {
     // check arguments
     if (args.length < 4 || args.length > 5) {
       System.err.println("Invalid argument(s)!");
-      System.err.println("Usage: mvn exec:java -Dexec.args=<host> <port> <service> <client_id> [-debug]");
+      System.err.println(
+          "Usage: mvn exec:java -Dexec.args=<host> <port> <service> <client_id> [-debug]");
       return;
     }
 
@@ -45,5 +45,6 @@ public class ClientMain {
 
     CommandProcessor parser = new CommandProcessor(new ClientService(target, service));
     parser.parseInput();
+    System.exit(0);
   }
 }
