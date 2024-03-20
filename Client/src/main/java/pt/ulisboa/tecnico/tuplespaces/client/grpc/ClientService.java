@@ -11,6 +11,7 @@ import main.java.pt.ulisboa.tecnico.tuplespaces.client.util.OrderedDelayer;
 import pt.ulisboa.tecnico.tuplespaces.client.ClientMain;
 import pt.ulisboa.tecnico.tuplespaces.client.exceptions.ClientServiceException;
 import pt.ulisboa.tecnico.tuplespaces.client.exceptions.DnsServiceException;
+import pt.ulisboa.tecnico.tuplespaces.client.exceptions.SequencerServiceException;
 import pt.ulisboa.tecnico.tuplespaces.client.util.ResponseCollector;
 import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaGrpc;
 import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaXuLiskov.*;
@@ -20,10 +21,12 @@ public class ClientService {
   private final ArrayList<TupleSpacesReplicaGrpc.TupleSpacesReplicaStub> stubs = new ArrayList<>();
   private final ArrayList<String> qualifiers = new ArrayList<>();
   private final DnsService dns;
+  private final SequencerService sequencer;
   private final OrderedDelayer delayer;
 
-  public ClientService(String target, String service) {
-    dns = new DnsService(target);
+  public ClientService(String dnsTarget, String service, String sequencerTarget) {
+    dns = new DnsService(dnsTarget);
+    sequencer = new SequencerService(sequencerTarget);
     String[] defaultQualifiers = {"A", "B", "C"};
 
     for (String qualifier : defaultQualifiers) {
@@ -66,8 +69,17 @@ public class ClientService {
     ResponseCollector<PutResponse> collector = new ResponseCollector<>(stubs.size());
 
     ClientMain.debug("calling procedure put('%s')\n", newTuple);
+
+    int sequenceNumber = 0;
+    try {
+      sequenceNumber = sequencer.getSequenceNumber();
+    } catch(SequencerServiceException e) {
+      ClientMain.debug("Sequencer failed: %s\n", e);
+      throw new ClientServiceException(e.getDescription());
+    }
+
     PutRequest request = PutRequest.newBuilder().setNewTuple(newTuple).build();
-    ClientMain.debug("sending Put requests\n");
+    ClientMain.debug("sending Put requests with seqNumber %d\n", sequenceNumber);
     asyncSendRequests(
         (Integer index) -> stubs.get(index).put(request, new TupleSpacesObserver<>(collector)));
 
@@ -87,7 +99,6 @@ public class ClientService {
 
     ClientMain.debug("calling procedure read('%s')\n", searchPattern);
     ReadRequest request = ReadRequest.newBuilder().setSearchPattern(searchPattern).build();
-
     ClientMain.debug("sending Read requests\n");
     asyncSendRequests(
         (Integer index) -> stubs.get(index).read(request, new TupleSpacesObserver<>(collector)));
@@ -110,9 +121,19 @@ public class ClientService {
     TakePhase1Request request =
         TakePhase1Request.newBuilder()
             .setSearchPattern(searchPattern)
-            .setClientId(ClientMain.id)
+            .setClientId(1)
             .build();
     String tupleToTake = null;
+
+    int sequenceNumber = 0;
+    try {
+      sequenceNumber = sequencer.getSequenceNumber();
+    } catch(SequencerServiceException e) {
+      ClientMain.debug("Sequencer failed: %s\n", e);
+      throw new ClientServiceException(e.getDescription());
+    }
+
+    ClientMain.debug("sending Take requests with seqNumber %d\n", sequenceNumber);
 
     while (status != ResponseCollector.Status.ALL_RECEIVED) {
       try {
@@ -164,7 +185,7 @@ public class ClientService {
   private String takePhase2(String tupleToTake) throws ClientServiceException {
 
     TakePhase2Request request =
-        TakePhase2Request.newBuilder().setClientId(ClientMain.id).setTuple(tupleToTake).build();
+        TakePhase2Request.newBuilder().setClientId(1).setTuple(tupleToTake).build();
 
     ResponseCollector<TakePhase2Response> collector = new ResponseCollector<>(stubs.size());
 
@@ -233,7 +254,7 @@ public class ClientService {
   private void releaseAllLocks() throws ClientServiceException {
     ResponseCollector<TakePhase1ReleaseResponse> collector = new ResponseCollector<>(stubs.size());
     TakePhase1ReleaseRequest request =
-        TakePhase1ReleaseRequest.newBuilder().setClientId(ClientMain.id).build();
+        TakePhase1ReleaseRequest.newBuilder().setClientId(1).build();
 
     ClientMain.debug("sending TakePhase1Release requests\n");
     asyncSendRequests(

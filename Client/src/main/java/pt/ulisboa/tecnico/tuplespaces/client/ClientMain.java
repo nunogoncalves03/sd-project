@@ -6,8 +6,6 @@ public class ClientMain {
 
   public static boolean debugMode = false;
 
-  public static int id;
-
   public static void debug(String format, Object... args) {
     if (debugMode) {
       System.err.print("[DEBUG] ");
@@ -16,8 +14,8 @@ public class ClientMain {
   }
 
   public static void main(String[] args) {
-    if (args.length == 5) {
-      debugMode = args[4].equals("-debug");
+    if (args.length == 6) {
+      debugMode = args[5].equals("-debug");
     }
 
     // receive and print arguments
@@ -27,23 +25,26 @@ public class ClientMain {
     }
 
     // check arguments
-    if (args.length < 4 || args.length > 5) {
+    if (args.length < 5 || args.length > 6) {
       System.err.println("Invalid argument(s)!");
       System.err.println(
-          "Usage: mvn exec:java -Dexec.args=<host> <port> <service> <client_id> [-debug]");
+          "Usage: mvn exec:java -Dexec.args=<dns_host> <dns_port> <service> <sequencer_host> <sequencer_port> [-debug]");
       return;
     }
 
-    final String host = args[0];
-    final int port = Integer.parseInt(args[1]);
+    final String dnsHost = args[0];
+    final int dnsPort = Integer.parseInt(args[1]);
     final String service = args[2];
-    ClientMain.id = Integer.parseInt(args[3]);
-    final String target = host + ":" + port;
-    debug("DNS target: %s\n", target);
-    debug("Service: %s\n", service);
-    debug("Client ID: %s\n", ClientMain.id);
+    final String sequencerHost = args[3];
+    final int sequencerPort = Integer.parseInt(args[4]);
 
-    CommandProcessor parser = new CommandProcessor(new ClientService(target, service));
+    final String dnsTarget = dnsHost + ":" + dnsPort;
+    final String sequencerTarget = sequencerHost + ":" + sequencerPort;
+    debug("DNS target: %s\n", dnsTarget);
+    debug("Service: %s\n", service);
+    debug("Sequencer target: %s\n", sequencerTarget);
+
+    CommandProcessor parser = new CommandProcessor(new ClientService(dnsTarget, service, sequencerTarget));
     parser.parseInput();
     System.exit(0);
   }
