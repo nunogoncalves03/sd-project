@@ -13,8 +13,8 @@ import pt.ulisboa.tecnico.tuplespaces.client.exceptions.ClientServiceException;
 import pt.ulisboa.tecnico.tuplespaces.client.exceptions.DnsServiceException;
 import pt.ulisboa.tecnico.tuplespaces.client.exceptions.SequencerServiceException;
 import pt.ulisboa.tecnico.tuplespaces.client.util.ResponseCollector;
-import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaGrpc;
-import pt.ulisboa.tecnico.tuplespaces.replicaXuLiskov.contract.TupleSpacesReplicaXuLiskov.*;
+import pt.ulisboa.tecnico.tuplespaces.replicaTotalOrder.contract.TupleSpacesReplicaGrpc;
+import pt.ulisboa.tecnico.tuplespaces.replicaTotalOrder.contract.TupleSpacesReplicaTotalOrder.*;
 
 public class ClientService {
   private final ArrayList<ManagedChannel> channels = new ArrayList<>();
@@ -78,13 +78,13 @@ public class ClientService {
       throw new ClientServiceException(e.getDescription());
     }
 
-    PutRequest request = PutRequest.newBuilder().setNewTuple(newTuple).build();
+    PutRequest request = PutRequest.newBuilder().setNewTuple(newTuple).setSeqNumber(sequenceNumber).build();
     ClientMain.debug("sending Put requests with seqNumber %d\n", sequenceNumber);
     asyncSendRequests(
         (Integer index) -> stubs.get(index).put(request, new TupleSpacesObserver<>(collector)));
 
     try {
-      List<PutResponse> responses = collector.waitUntilAllReceived();
+      collector.waitUntilAllReceived();
       ClientMain.debug("all servers acknowledged\n");
     } catch (StatusRuntimeException e) {
       ClientMain.debug("RPC failed: %s\n", e.getStatus());
@@ -116,14 +116,9 @@ public class ClientService {
   }
 
   public String take(String searchPattern) throws ClientServiceException {
-    ResponseCollector.Status status = null;
-    ResponseCollector<TakePhase1Response> collector = null;
-    TakePhase1Request request =
-        TakePhase1Request.newBuilder()
-            .setSearchPattern(searchPattern)
-            .setClientId(1)
-            .build();
-    String tupleToTake = null;
+    ResponseCollector<TakeResponse> collector = new ResponseCollector<>(stubs.size());
+
+    ClientMain.debug("calling procedure take('%s')\n", searchPattern);
 
     int sequenceNumber = 0;
     try {
@@ -133,78 +128,21 @@ public class ClientService {
       throw new ClientServiceException(e.getDescription());
     }
 
+    TakeRequest request = TakeRequest.newBuilder().setSearchPattern(searchPattern).setSeqNumber(sequenceNumber).build();
     ClientMain.debug("sending Take requests with seqNumber %d\n", sequenceNumber);
-
-    while (status != ResponseCollector.Status.ALL_RECEIVED) {
-      try {
-        collector = new ResponseCollector<>(stubs.size());
-        status = takePhase1(collector, request);
-
-        if (status == ResponseCollector.Status.MAJORITY_RECEIVED) {
-          randomSleep();
-        } else if (status == ResponseCollector.Status.MINORITY_RECEIVED) {
-          releaseAllLocks();
-          randomSleep();
-        } else if (status == ResponseCollector.Status.ALL_RECEIVED) {
-          if ((tupleToTake = chooseTupleFromIntersection(collector)) == null) {
-            status = null;
-            randomSleep();
-          }
-        } else {
-          System.err.println("Unknown status, shouldn't happen");
-          System.exit(1);
-        }
-      } catch (StatusRuntimeException e) {
-        ClientMain.debug("RPC failed: %s\n", e.getStatus());
-        throw new ClientServiceException(e);
-      } catch (InterruptedException e) {
-        throw new ClientServiceException(e);
-      }
-    }
-
-    return takePhase2(tupleToTake);
-  }
-
-  private ResponseCollector.Status takePhase1(
-      ResponseCollector<TakePhase1Response> collector, TakePhase1Request request)
-      throws ClientServiceException {
-    try {
-      ClientMain.debug("sending TakePhase1 requests\n");
-      asyncSendRequests(
-          (Integer index) ->
-              stubs.get(index).takePhase1(request, new TupleSpacesObserver<>(collector)));
-      return collector.waitForResponsesOrMinority();
-    } catch (StatusRuntimeException e) {
-      ClientMain.debug("RPC failed: %s\n", e.getStatus());
-      throw new ClientServiceException(e);
-    } catch (InterruptedException e) {
-      throw new ClientServiceException(e);
-    }
-  }
-
-  private String takePhase2(String tupleToTake) throws ClientServiceException {
-
-    TakePhase2Request request =
-        TakePhase2Request.newBuilder().setClientId(1).setTuple(tupleToTake).build();
-
-    ResponseCollector<TakePhase2Response> collector = new ResponseCollector<>(stubs.size());
-
-    ClientMain.debug("sending TakePhase2 requests\n");
     asyncSendRequests(
-        (Integer index) ->
-            stubs.get(index).takePhase2(request, new TupleSpacesObserver<>(collector)));
+            (Integer index) -> stubs.get(index).take(request, new TupleSpacesObserver<>(collector)));
 
     try {
-      collector.waitUntilAllReceived();
-      ClientMain.debug("all servers acknowledged the TakePhase2 request\n");
+      TakeResponse response = collector.waitUntilAllReceived().get(0);
+      ClientMain.debug("response: %s", response);
+      return response.getResult();
     } catch (StatusRuntimeException e) {
       ClientMain.debug("RPC failed: %s\n", e.getStatus());
       throw new ClientServiceException(e);
     } catch (InterruptedException e) {
       throw new ClientServiceException(e);
     }
-
-    return tupleToTake;
   }
 
   public List<String> getTupleSpacesState(String qualifier) throws ClientServiceException {
@@ -249,53 +187,6 @@ public class ClientService {
             ClientMain.debug("send request to server %s\n", qualifiers.get(index));
           }
         });
-  }
-
-  private void releaseAllLocks() throws ClientServiceException {
-    ResponseCollector<TakePhase1ReleaseResponse> collector = new ResponseCollector<>(stubs.size());
-    TakePhase1ReleaseRequest request =
-        TakePhase1ReleaseRequest.newBuilder().setClientId(1).build();
-
-    ClientMain.debug("sending TakePhase1Release requests\n");
-    asyncSendRequests(
-        (Integer index) ->
-            stubs.get(index).takePhase1Release(request, new TupleSpacesObserver<>(collector)));
-
-    try {
-      collector.waitUntilAllReceived();
-      ClientMain.debug("all servers acknowledged the lock release request\n");
-    } catch (StatusRuntimeException e) {
-      ClientMain.debug("RPC failed: %s\n", e.getStatus());
-      throw new ClientServiceException(e);
-    } catch (InterruptedException e) {
-      throw new ClientServiceException(e);
-    }
-  }
-
-  private String chooseTupleFromIntersection(ResponseCollector<TakePhase1Response> collector) {
-    Set<String> tuplesSet = new HashSet<>(collector.getResponses().get(0).getReservedTuplesList());
-
-    for (TakePhase1Response response : collector.getResponses()) {
-      tuplesSet.retainAll(response.getReservedTuplesList());
-    }
-
-    final List<String> intersection = new ArrayList<>(tuplesSet);
-
-    ClientMain.debug("tuple intersection: %s\n", intersection);
-
-    if (intersection.isEmpty()) {
-      return null;
-    }
-
-    final String chosenTuple = intersection.get(0);
-
-    ClientMain.debug("chosen tuple to take: %s\n", chosenTuple);
-
-    return chosenTuple;
-  }
-
-  private void randomSleep() throws InterruptedException {
-    Thread.sleep((long) (Math.random() * 1000));
   }
 
   public void shutdownChannels() {
