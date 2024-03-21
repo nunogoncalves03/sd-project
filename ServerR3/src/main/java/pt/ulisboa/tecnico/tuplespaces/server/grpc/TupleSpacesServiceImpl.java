@@ -22,7 +22,7 @@ public class TupleSpacesServiceImpl extends TupleSpacesReplicaImplBase {
       final String tuple = request.getNewTuple();
       final int sequenceNumber = request.getSeqNumber();
 
-      state.put(tuple);
+      state.put(tuple, sequenceNumber);
 
       PutResponse response = PutResponse.getDefaultInstance();
       ServerMain.debug("response @put: empty\n");
@@ -79,7 +79,7 @@ public class TupleSpacesServiceImpl extends TupleSpacesReplicaImplBase {
       final String searchPattern = request.getSearchPattern();
       final int sequenceNumber = request.getSeqNumber();
 
-      String result = state.take(searchPattern);
+      String result = state.take(searchPattern, sequenceNumber);
 
       TakeResponse response = TakeResponse.newBuilder().setResult(result).build();
       ServerMain.debug("response @take: %s", response);

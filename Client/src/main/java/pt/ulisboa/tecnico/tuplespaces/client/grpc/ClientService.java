@@ -73,12 +73,13 @@ public class ClientService {
     int sequenceNumber = 0;
     try {
       sequenceNumber = sequencer.getSequenceNumber();
-    } catch(SequencerServiceException e) {
+    } catch (SequencerServiceException e) {
       ClientMain.debug("Sequencer failed: %s\n", e);
       throw new ClientServiceException(e.getDescription());
     }
 
-    PutRequest request = PutRequest.newBuilder().setNewTuple(newTuple).setSeqNumber(sequenceNumber).build();
+    PutRequest request =
+        PutRequest.newBuilder().setNewTuple(newTuple).setSeqNumber(sequenceNumber).build();
     ClientMain.debug("sending Put requests with seqNumber %d\n", sequenceNumber);
     asyncSendRequests(
         (Integer index) -> stubs.get(index).put(request, new TupleSpacesObserver<>(collector)));
@@ -123,15 +124,19 @@ public class ClientService {
     int sequenceNumber = 0;
     try {
       sequenceNumber = sequencer.getSequenceNumber();
-    } catch(SequencerServiceException e) {
+    } catch (SequencerServiceException e) {
       ClientMain.debug("Sequencer failed: %s\n", e);
       throw new ClientServiceException(e.getDescription());
     }
 
-    TakeRequest request = TakeRequest.newBuilder().setSearchPattern(searchPattern).setSeqNumber(sequenceNumber).build();
+    TakeRequest request =
+        TakeRequest.newBuilder()
+            .setSearchPattern(searchPattern)
+            .setSeqNumber(sequenceNumber)
+            .build();
     ClientMain.debug("sending Take requests with seqNumber %d\n", sequenceNumber);
     asyncSendRequests(
-            (Integer index) -> stubs.get(index).take(request, new TupleSpacesObserver<>(collector)));
+        (Integer index) -> stubs.get(index).take(request, new TupleSpacesObserver<>(collector)));
 
     try {
       TakeResponse response = collector.waitUntilAllReceived().get(0);

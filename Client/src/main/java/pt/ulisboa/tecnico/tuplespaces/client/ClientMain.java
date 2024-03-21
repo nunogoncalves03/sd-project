@@ -44,7 +44,8 @@ public class ClientMain {
     debug("Service: %s\n", service);
     debug("Sequencer target: %s\n", sequencerTarget);
 
-    CommandProcessor parser = new CommandProcessor(new ClientService(dnsTarget, service, sequencerTarget));
+    CommandProcessor parser =
+        new CommandProcessor(new ClientService(dnsTarget, service, sequencerTarget));
     parser.parseInput();
     System.exit(0);
   }
