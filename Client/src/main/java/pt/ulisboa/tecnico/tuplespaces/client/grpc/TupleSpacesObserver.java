@@ -22,14 +22,6 @@ public class TupleSpacesObserver<R> implements StreamObserver<R> {
   @Override
   public void onError(Throwable throwable) {
     StatusRuntimeException e = Status.fromThrowable(throwable).asRuntimeException();
-
-    if (e.getStatus().getCode().equals(Status.ABORTED.getCode())
-        && e.getStatus().getDescription() != null
-        && e.getStatus().getDescription().contains("LOCK_FAILED")) {
-      this.collector.addRejection();
-      return;
-    }
-
     this.collector.abort(e);
   }
 
