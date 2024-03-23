@@ -84,7 +84,7 @@ public class ServerState {
       this.tuples.add(tuple);
       ServerMain.debug(
           "put('%s'):\n\t\told tuples: %s\n\t\tnew tuples: %s\n", tuple, oldTuples, this.tuples);
-      ServerMain.debug("@put: notifying all threads on tuples\n");
+      ServerMain.debug("@put %d: notifying all threads on tuples\n", sequenceNumber);
       this.tuples.notifyAll();
     }
 
@@ -135,9 +135,10 @@ public class ServerState {
     }
 
     this.sequenceNumber.increment();
-    ServerMain.debug("@take: couldn't find matching tuple with '%s', waiting...\n", pattern);
+    ServerMain.debug(
+        "@take %d: couldn't find matching tuple with '%s', waiting...\n", sequenceNumber, pattern);
     String takenTuple = pendingTake.waitForTuple();
-    ServerMain.debug("@take: removed tuple %s\n", takenTuple);
+    ServerMain.debug("@take %d: removed tuple %s\n", sequenceNumber, takenTuple);
 
     return takenTuple;
   }
@@ -150,11 +151,13 @@ public class ServerState {
 
   private void waitForTurn(int sequenceNumber) throws InterruptedException {
     int currentSequenceNumber;
-    while ((currentSequenceNumber = this.sequenceNumber.getValue()) != sequenceNumber) {
-      ServerMain.debug(
-          "waiting for turn %d: current sequence number is %d\n",
-          sequenceNumber, currentSequenceNumber);
-      this.sequenceNumber.wait();
+    synchronized (this.sequenceNumber) {
+      while ((currentSequenceNumber = this.sequenceNumber.getValue()) != sequenceNumber) {
+        ServerMain.debug(
+            "waiting for turn %d: current sequence number is %d\n",
+            sequenceNumber, currentSequenceNumber);
+        this.sequenceNumber.wait();
+      }
     }
   }
 
