@@ -72,6 +72,24 @@ To run the NameServer:
 python server.py [-debug]
 ```
 
+### Sequencer
+
+**NOTE**: the default arguments provided to the program are defined in `pom.xml` as follows:
+
+```
+<port>: 8080
+```
+
+To run the Sequencer:
+
+```
+mvn compile exec:java
+```
+or
+```
+mvn compile exec:java -Dexec.args="<port>"
+```
+
 #### Server
 
 **NOTE**: the default arguments provided to the program are defined in `pom.xml` as follows:
